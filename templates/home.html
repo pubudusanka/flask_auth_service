@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authentication System</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .flash-messages { list-style-type: none; padding: 0; }
+        .flash-messages li { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background-color: #ffdddd; border-left: 5px solid #f44336; }
+        .success { background-color: #ddffdd; border-left: 5px solid #4CAF50; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Authentication System</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    
+    <p>
+        <a href="{{ url_for('register') }}">Register</a> | 
+        <a href="{{ url_for('login') }}">Login</a>
+    </p>
+</body>
+</html>
