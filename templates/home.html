@@ -10,8 +10,10 @@
             --primary: #4361ee;
             --primary-dark: #3a56d4;
             --secondary: #3f37c9;
-            --success: #4cc9f0;
+            --success: #4bb543;
             --danger: #f72585;
+            --warning: #ffcc00;
+            --info: #17a2b8;
             --light: #f8f9fa;
             --dark: #212529;
             --gray: #6c757d;
@@ -119,28 +121,76 @@
             color: var(--white);
         }
         
-        .flash-messages {
-            list-style-type: none;
-            margin-bottom: 1.5rem;
+        /* Modern Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+            width: 100%;
         }
         
-        .flash-messages li {
-            padding: 0.8rem;
+        .notification {
+            position: relative;
+            padding: 1rem;
+            margin-bottom: 1rem;
             border-radius: 8px;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            transform: translateX(400px);
+            opacity: 0;
+            animation: slideIn 0.5s forwards, fadeOut 0.5s 2.5s forwards;
         }
         
-        .error {
-            background-color: rgba(247, 37, 133, 0.1);
-            color: var(--danger);
-            border-left: 4px solid var(--danger);
+        .notification.success {
+            background-color: var(--success);
         }
         
-        .success {
-            background-color: rgba(76, 201, 240, 0.1);
-            color: var(--success);
-            border-left: 4px solid var(--success);
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .notification.info {
+            background-color: var(--info);
+        }
+        
+        .notification-icon {
+            margin-right: 0.75rem;
+            font-size: 1.5rem;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
         }
         
         @media (max-width: 768px) {
@@ -155,25 +205,43 @@
             h1 {
                 font-size: 1.5rem;
             }
+            
+            .notification-container {
+                max-width: 90%;
+                right: 5%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Notification container at the top right -->
+    <div class="notification-container" id="notificationContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="notification {{ category }}">
+                    <div class="notification-icon">
+                        {% if category == 'success' %}
+                            ✓
+                        {% elif category == 'error' %}
+                            ✗
+                        {% elif category == 'warning' %}
+                            !
+                        {% else %}
+                            i
+                        {% endif %}
+                    </div>
+                    <div class="notification-content">{{ message }}</div>
+                    <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+                </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+    
     <div class="auth-container">
         <div class="auth-card">
             <div class="logo">Auth<span>System</span></div>
             <h1>Welcome to Our Platform</h1>
             <p class="subtitle">Secure authentication system with modern features</p>
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <ul class="flash-messages">
-                        {% for category, message in messages %}
-                            <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
             
             <div class="btn-group">
                 <a href="{{ url_for('register') }}" class="btn btn-primary">Create Account</a>
@@ -181,5 +249,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Auto-remove notifications after 3 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = document.querySelectorAll('.notification');
+            notifications.forEach(notification => {
+                setTimeout(() => {
+                    notification.style.animation = 'fadeOut 0.5s forwards';
+                    notification.addEventListener('animationend', () => {
+                        notification.remove();
+                    });
+                }, 3000);
+            });
+        });
+    </script>
 </body>
 </html>
